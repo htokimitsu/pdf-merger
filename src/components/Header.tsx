@@ -6,7 +6,7 @@ export function Header() {
           PDF・画像 結合ツール
         </h1>
         <p className="mt-1 text-sm text-gray-500 dark:text-gray-400">
-          ブラウザ上でPDFと画像を1つのPDFに結合できます。ファイルはサーバーに送信されません。
+          すべての処理はブラウザ内で完結します。ファイルが外部に送信されることはありません。
         </p>
       </div>
     </header>
