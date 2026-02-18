@@ -63,7 +63,7 @@ export function FileItem({ entry, index, onRemove }: FileItemProps) {
           />
         ) : (
           <div className="w-full h-full flex items-center justify-center text-gray-400 text-xs">
-            PDF
+            {entry.fileType === 'pdf' ? 'PDF' : 'IMG'}
           </div>
         )}
       </div>

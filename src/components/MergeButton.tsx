@@ -26,7 +26,7 @@ export function MergeButton({ fileCount, mergeState, onMerge }: MergeButtonProps
     >
       {mergeState.status === 'merging'
         ? '結合中...'
-        : `PDFを結合する（${fileCount}ファイル）`}
+        : `PDFに結合する（${fileCount}ファイル）`}
     </button>
   )
 }

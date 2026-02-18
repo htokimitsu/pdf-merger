@@ -1,4 +1,5 @@
 import { useCallback, useRef, useState, type DragEvent, type ChangeEvent } from 'react'
+import { ACCEPTED_FILE_TYPES } from '../lib/validation'
 
 interface DropZoneProps {
   readonly onFilesAdded: (files: FileList) => void
@@ -70,7 +71,7 @@ export function DropZone({ onFilesAdded }: DropZoneProps) {
       <input
         ref={inputRef}
         type="file"
-        accept=".pdf,application/pdf"
+        accept={ACCEPTED_FILE_TYPES}
         multiple
         className="hidden"
         onChange={handleFileChange}
@@ -92,10 +93,10 @@ export function DropZone({ onFilesAdded }: DropZoneProps) {
           />
         </svg>
         <p className="text-sm font-medium">
-          PDFファイルをドラッグ&ドロップ
+          PDF・画像ファイルをドラッグ&ドロップ
         </p>
         <p className="mt-1 text-xs">
-          またはクリックしてファイルを選択
+          またはクリックしてファイルを選択（PDF, JPEG, PNG, WebP, GIF）
         </p>
       </div>
     </div>

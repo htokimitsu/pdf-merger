@@ -1,13 +1,13 @@
 import { useCallback, useState } from 'react'
-import type { MergeState, PdfFileEntry } from '../types/pdf'
+import type { MergeState, FileEntry } from '../types/pdf'
 import { initialMergeState } from '../types/pdf'
-import { mergePdfs } from '../lib/pdf-merge'
+import { mergeFiles } from '../lib/pdf-merge'
 import { downloadBlob } from '../lib/file-utils'
 
 interface UsePdfMergeReturn {
   readonly mergeState: MergeState
   readonly merge: (
-    files: ReadonlyArray<PdfFileEntry>,
+    files: ReadonlyArray<FileEntry>,
     outputName: string,
   ) => Promise<void>
   readonly resetState: () => void
@@ -17,12 +17,15 @@ export function usePdfMerge(): UsePdfMergeReturn {
   const [mergeState, setMergeState] = useState<MergeState>(initialMergeState)
 
   const merge = useCallback(
-    async (files: ReadonlyArray<PdfFileEntry>, outputName: string) => {
+    async (files: ReadonlyArray<FileEntry>, outputName: string) => {
       setMergeState({ status: 'merging', progress: 0, errorMessage: null })
 
       try {
-        const rawFiles = files.map((f) => f.file)
-        const result = await mergePdfs(rawFiles, (progress) => {
+        const mergeableFiles = files.map((f) => ({
+          file: f.file,
+          fileType: f.fileType,
+        }))
+        const result = await mergeFiles(mergeableFiles, (progress) => {
           setMergeState((prev) => ({ ...prev, progress }))
         })
 
@@ -32,7 +35,9 @@ export function usePdfMerge(): UsePdfMergeReturn {
         setMergeState({ status: 'done', progress: 100, errorMessage: null })
       } catch (error) {
         const message =
-          error instanceof Error ? error.message : 'PDF結合中にエラーが発生しました'
+          error instanceof Error
+            ? error.message
+            : 'ファイル結合中にエラーが発生しました'
         setMergeState({ status: 'error', progress: 0, errorMessage: message })
       }
     },
