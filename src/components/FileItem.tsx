@@ -7,9 +7,10 @@ interface FileItemProps {
   readonly entry: PdfFileEntry
   readonly index: number
   readonly onRemove: (id: string) => void
+  readonly onRotate: (id: string) => void
 }
 
-export function FileItem({ entry, index, onRemove }: FileItemProps) {
+export function FileItem({ entry, index, onRemove, onRotate }: FileItemProps) {
   const {
     attributes,
     listeners,
@@ -54,12 +55,13 @@ export function FileItem({ entry, index, onRemove }: FileItemProps) {
       </span>
 
       {/* Thumbnail */}
-      <div className="flex-shrink-0 w-10 h-14 bg-gray-100 dark:bg-gray-700 rounded overflow-hidden">
+      <div className="flex-shrink-0 w-10 h-14 bg-gray-100 dark:bg-gray-700 rounded overflow-hidden flex items-center justify-center">
         {entry.thumbnailUrl ? (
           <img
             src={entry.thumbnailUrl}
             alt={`${entry.name} の1ページ目`}
-            className="w-full h-full object-cover"
+            className="max-w-full max-h-full object-contain transition-transform duration-200"
+            style={{ transform: `rotate(${entry.rotation}deg)` }}
           />
         ) : (
           <div className="w-full h-full flex items-center justify-center text-gray-400 text-xs">
@@ -75,8 +77,22 @@ export function FileItem({ entry, index, onRemove }: FileItemProps) {
         </p>
         <p className="text-xs text-gray-500 dark:text-gray-400">
           {entry.pageCount}ページ ・ {formatFileSize(entry.size)}
+          {entry.rotation !== 0 && ` ・ ${entry.rotation}°回転`}
         </p>
       </div>
+
+      {/* Rotate button */}
+      <button
+        type="button"
+        onClick={() => onRotate(entry.id)}
+        className="flex-shrink-0 p-1 text-gray-400 hover:text-blue-500 dark:hover:text-blue-400 transition-colors"
+        aria-label={`${entry.name} を90°回転`}
+        data-testid="rotate-button"
+      >
+        <svg className="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+        </svg>
+      </button>
 
       {/* Remove button */}
       <button

@@ -1,5 +1,6 @@
 import { useCallback, useMemo, useState } from 'react'
 import type { FileEntry } from '../types/pdf'
+import { nextRotation } from '../types/pdf'
 import { validateFile, isPdfFile } from '../lib/validation'
 import { getPdfPageCount } from '../lib/pdf-merge'
 import { generateFileThumbnail } from '../lib/thumbnail'
@@ -8,6 +9,7 @@ interface UsePdfFilesReturn {
   readonly files: ReadonlyArray<FileEntry>
   readonly addFiles: (fileList: FileList | File[]) => Promise<void>
   readonly removeFile: (id: string) => void
+  readonly rotateFile: (id: string) => void
   readonly reorderFiles: (activeId: string, overId: string) => void
   readonly clearFiles: () => void
   readonly totalSize: number
@@ -30,6 +32,7 @@ async function createFileEntry(file: File): Promise<FileEntry> {
     pageCount,
     thumbnailUrl,
     fileType,
+    rotation: 0,
   }
 }
 
@@ -43,6 +46,14 @@ export function usePdfFiles(): UsePdfFilesReturn {
     const entries = await Promise.all(validFiles.map(createFileEntry))
 
     setFiles((prev) => [...prev, ...entries])
+  }, [])
+
+  const rotateFile = useCallback((id: string) => {
+    setFiles((prev) =>
+      prev.map((f) =>
+        f.id === id ? { ...f, rotation: nextRotation(f.rotation) } : f,
+      ),
+    )
   }, [])
 
   const removeFile = useCallback((id: string) => {
@@ -93,6 +104,7 @@ export function usePdfFiles(): UsePdfFilesReturn {
     files,
     addFiles,
     removeFile,
+    rotateFile,
     reorderFiles,
     clearFiles,
     totalSize,

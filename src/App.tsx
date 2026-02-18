@@ -14,6 +14,7 @@ function App() {
     files,
     addFiles,
     removeFile,
+    rotateFile,
     reorderFiles,
     clearFiles,
     totalSize,
@@ -39,6 +40,7 @@ function App() {
           files={files}
           onReorder={reorderFiles}
           onRemove={removeFile}
+          onRotate={rotateFile}
           onClear={clearFiles}
         />
 

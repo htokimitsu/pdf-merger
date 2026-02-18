@@ -1,6 +1,7 @@
 import { describe, it, expect, vi } from 'vitest'
 import { PDFDocument } from 'pdf-lib'
 import { mergePdfs, mergeFiles, getPdfPageCount } from '../pdf-merge'
+import { nextRotation } from '../../types/pdf'
 
 async function createTestPdf(pageCount: number): Promise<File> {
   const doc = await PDFDocument.create()
@@ -79,8 +80,8 @@ describe('mergeFiles', () => {
     const imageFile = createMinimalPngFile('test.png')
 
     const result = await mergeFiles([
-      { file: pdfFile, fileType: 'pdf' },
-      { file: imageFile, fileType: 'image' },
+      { file: pdfFile, fileType: 'pdf', rotation: 0 },
+      { file: imageFile, fileType: 'image', rotation: 0 },
     ])
 
     const merged = await PDFDocument.load(result)
@@ -92,8 +93,8 @@ describe('mergeFiles', () => {
     const img2 = createMinimalPngFile('img2.png')
 
     const result = await mergeFiles([
-      { file: img1, fileType: 'image' },
-      { file: img2, fileType: 'image' },
+      { file: img1, fileType: 'image', rotation: 0 },
+      { file: img2, fileType: 'image', rotation: 0 },
     ])
 
     const merged = await PDFDocument.load(result)
@@ -107,8 +108,8 @@ describe('mergeFiles', () => {
 
     await mergeFiles(
       [
-        { file: pdfFile, fileType: 'pdf' },
-        { file: imageFile, fileType: 'image' },
+        { file: pdfFile, fileType: 'pdf', rotation: 0 },
+        { file: imageFile, fileType: 'image', rotation: 0 },
       ],
       onProgress,
     )
@@ -117,6 +118,31 @@ describe('mergeFiles', () => {
     expect(onProgress).toHaveBeenNthCalledWith(1, 50)
     expect(onProgress).toHaveBeenNthCalledWith(2, 100)
   })
+
+  it('PDFに90°回転が適用される', async () => {
+    const file = await createTestPdf(2)
+
+    const result = await mergeFiles([
+      { file, fileType: 'pdf', rotation: 90 },
+    ])
+
+    const merged = await PDFDocument.load(result)
+    const pages = merged.getPages()
+    for (const page of pages) {
+      expect(page.getRotation().angle).toBe(90)
+    }
+  })
+
+  it('回転0のPDFは回転が変わらない', async () => {
+    const file = await createTestPdf(1)
+
+    const result = await mergeFiles([
+      { file, fileType: 'pdf', rotation: 0 },
+    ])
+
+    const merged = await PDFDocument.load(result)
+    expect(merged.getPages()[0].getRotation().angle).toBe(0)
+  })
 })
 
 describe('getPdfPageCount', () => {
@@ -124,5 +150,23 @@ describe('getPdfPageCount', () => {
     const file = await createTestPdf(5)
     const count = await getPdfPageCount(file)
     expect(count).toBe(5)
+  })
+})
+
+describe('nextRotation', () => {
+  it('0 → 90', () => {
+    expect(nextRotation(0)).toBe(90)
+  })
+
+  it('90 → 180', () => {
+    expect(nextRotation(90)).toBe(180)
+  })
+
+  it('180 → 270', () => {
+    expect(nextRotation(180)).toBe(270)
+  })
+
+  it('270 → 0 (ラップアラウンド)', () => {
+    expect(nextRotation(270)).toBe(0)
   })
 })

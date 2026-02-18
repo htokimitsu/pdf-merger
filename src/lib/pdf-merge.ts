@@ -1,5 +1,5 @@
-import { PDFDocument } from 'pdf-lib'
-import type { SupportedFileType } from '../types/pdf'
+import { PDFDocument, degrees } from 'pdf-lib'
+import type { SupportedFileType, RotationDegrees } from '../types/pdf'
 import { addImagePageToDoc } from './image-to-pdf'
 
 type ProgressCallback = (percent: number) => void
@@ -7,6 +7,7 @@ type ProgressCallback = (percent: number) => void
 export interface MergeableFile {
   readonly file: File
   readonly fileType: SupportedFileType
+  readonly rotation: RotationDegrees
 }
 
 export async function mergeFiles(
@@ -27,10 +28,14 @@ export async function mergeFiles(
         sourceDoc.getPageIndices(),
       )
       for (const page of pages) {
+        if (entry.rotation !== 0) {
+          const currentAngle = page.getRotation().angle
+          page.setRotation(degrees(currentAngle + entry.rotation))
+        }
         mergedDoc.addPage(page)
       }
     } else {
-      await addImagePageToDoc(mergedDoc, entry.file)
+      await addImagePageToDoc(mergedDoc, entry.file, entry.rotation)
     }
 
     onProgress?.(Math.round(((i + 1) / totalEntries) * 100))
@@ -47,6 +52,7 @@ export async function mergePdfs(
   const entries: ReadonlyArray<MergeableFile> = files.map((file) => ({
     file,
     fileType: 'pdf' as const,
+    rotation: 0 as const,
   }))
   return mergeFiles(entries, onProgress)
 }

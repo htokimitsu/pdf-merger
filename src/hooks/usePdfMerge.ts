@@ -24,6 +24,7 @@ export function usePdfMerge(): UsePdfMergeReturn {
         const mergeableFiles = files.map((f) => ({
           file: f.file,
           fileType: f.fileType,
+          rotation: f.rotation,
         }))
         const result = await mergeFiles(mergeableFiles, (progress) => {
           setMergeState((prev) => ({ ...prev, progress }))

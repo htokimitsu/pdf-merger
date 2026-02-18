@@ -19,10 +19,11 @@ interface FileListProps {
   readonly files: ReadonlyArray<PdfFileEntry>
   readonly onReorder: (activeId: string, overId: string) => void
   readonly onRemove: (id: string) => void
+  readonly onRotate: (id: string) => void
   readonly onClear: () => void
 }
 
-export function FileList({ files, onReorder, onRemove, onClear }: FileListProps) {
+export function FileList({ files, onReorder, onRemove, onRotate, onClear }: FileListProps) {
   const sensors = useSensors(
     useSensor(PointerSensor, {
       activationConstraint: { distance: 5 },
@@ -74,6 +75,7 @@ export function FileList({ files, onReorder, onRemove, onClear }: FileListProps)
                 entry={entry}
                 index={index}
                 onRemove={onRemove}
+                onRotate={onRotate}
               />
             ))}
           </div>
