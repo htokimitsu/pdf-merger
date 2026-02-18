@@ -79,7 +79,7 @@ function App() {
       </main>
 
       <footer className="text-center py-6 text-xs text-gray-400 dark:text-gray-500">
-        すべての処理はブラウザ内で完結します。ファイルはサーバーに送信されません。
+        &copy; PDF・画像 結合ツール
       </footer>
     </div>
   )

@@ -58,7 +58,7 @@ export function DropZone({ onFilesAdded }: DropZoneProps) {
         }
       }}
       className={`
-        border-2 border-dashed rounded-xl p-8 text-center cursor-pointer
+        border-2 border-dashed rounded-xl p-16 text-center cursor-pointer
         transition-colors duration-200
         ${
           isDragging
@@ -79,7 +79,7 @@ export function DropZone({ onFilesAdded }: DropZoneProps) {
       />
       <div className="text-gray-500 dark:text-gray-400">
         <svg
-          className="mx-auto h-12 w-12 mb-3"
+          className="mx-auto h-16 w-16 mb-4"
           fill="none"
           stroke="currentColor"
           viewBox="0 0 24 24"
@@ -92,10 +92,10 @@ export function DropZone({ onFilesAdded }: DropZoneProps) {
             d="M12 16v-8m0 0l-3 3m3-3l3 3M6.75 19.25h10.5a2 2 0 002-2V8.5l-5.25-5.25H6.75a2 2 0 00-2 2v12a2 2 0 002 2z"
           />
         </svg>
-        <p className="text-sm font-medium">
+        <p className="text-base font-medium">
           PDF・画像ファイルをドラッグ&ドロップ
         </p>
-        <p className="mt-1 text-xs">
+        <p className="mt-2 text-sm">
           またはクリックしてファイルを選択（PDF, JPEG, PNG, WebP, GIF）
         </p>
       </div>
