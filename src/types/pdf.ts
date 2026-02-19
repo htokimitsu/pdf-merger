@@ -34,3 +34,35 @@ export const initialMergeState: MergeState = {
   progress: 0,
   errorMessage: null,
 }
+
+// --- タブナビゲーション ---
+
+export type AppTab = 'merge' | 'split'
+
+// --- PDF分割関連 ---
+
+export interface PageEntry {
+  readonly pageIndex: number
+  readonly thumbnailUrl: string | null
+  readonly selected: boolean
+}
+
+export interface SplitSourceFile {
+  readonly file: File
+  readonly name: string
+  readonly size: number
+  readonly pageCount: number
+  readonly pages: ReadonlyArray<PageEntry>
+}
+
+export interface SplitState {
+  readonly status: 'idle' | 'loading' | 'ready' | 'splitting' | 'done' | 'error'
+  readonly progress: number
+  readonly errorMessage: string | null
+}
+
+export const initialSplitState: SplitState = {
+  status: 'idle',
+  progress: 0,
+  errorMessage: null,
+}
