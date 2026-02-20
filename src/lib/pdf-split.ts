@@ -1,10 +1,12 @@
-import { PDFDocument } from 'pdf-lib'
+import { PDFDocument, degrees } from 'pdf-lib'
+import type { RotationDegrees } from '../types/pdf'
 
 type ProgressCallback = (percent: number) => void
 
 export async function splitPdf(
   sourceArrayBuffer: ArrayBuffer,
   pageIndices: ReadonlyArray<number>,
+  rotations?: ReadonlyArray<RotationDegrees>,
   onProgress?: ProgressCallback,
 ): Promise<Uint8Array> {
   if (pageIndices.length === 0) {
@@ -24,7 +26,13 @@ export async function splitPdf(
   const copiedPages = await newDoc.copyPages(sourceDoc, [...pageIndices])
 
   for (let i = 0; i < copiedPages.length; i++) {
-    newDoc.addPage(copiedPages[i])
+    const page = copiedPages[i]
+    const rotation = rotations?.[i] ?? 0
+    if (rotation !== 0) {
+      const currentAngle = page.getRotation().angle
+      page.setRotation(degrees(currentAngle + rotation))
+    }
+    newDoc.addPage(page)
     onProgress?.(Math.round(((i + 1) / copiedPages.length) * 100))
   }
 

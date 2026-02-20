@@ -32,22 +32,20 @@ export function FileItem({ entry, index, onRemove, onRotate }: FileItemProps) {
       className={`
         flex items-center gap-3 p-3 bg-white dark:bg-gray-800 rounded-lg border
         border-gray-200 dark:border-gray-700 group
+        cursor-grab active:cursor-grabbing touch-none
         ${isDragging ? 'opacity-50 shadow-lg' : ''}
       `}
       data-testid="file-item"
+      {...attributes}
+      {...listeners}
+      aria-roledescription="ドラッグして並び替え"
     >
-      {/* Drag handle */}
-      <button
-        type="button"
-        className="flex-shrink-0 cursor-grab active:cursor-grabbing text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 touch-none"
-        {...attributes}
-        {...listeners}
-        aria-label="ドラッグして並び替え"
-      >
+      {/* Drag handle indicator */}
+      <div className="flex-shrink-0 text-gray-400 group-hover:text-gray-600 dark:group-hover:text-gray-300">
         <svg className="h-5 w-5" fill="currentColor" viewBox="0 0 20 20" aria-hidden="true">
           <path d="M7 2a2 2 0 10.001 4.001A2 2 0 007 2zm0 6a2 2 0 10.001 4.001A2 2 0 007 8zm0 6a2 2 0 10.001 4.001A2 2 0 007 14zm6-8a2 2 0 10-.001-4.001A2 2 0 0013 6zm0 2a2 2 0 10.001 4.001A2 2 0 0013 8zm0 6a2 2 0 10.001 4.001A2 2 0 0013 14z" />
         </svg>
-      </button>
+      </div>
 
       {/* Order number */}
       <span className="flex-shrink-0 w-7 h-7 flex items-center justify-center rounded-full bg-blue-100 dark:bg-blue-900 text-blue-700 dark:text-blue-300 text-xs font-bold">

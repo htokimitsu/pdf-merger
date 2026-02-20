@@ -18,6 +18,8 @@ export function SplitView() {
     deselectAll,
     setSelectedPages,
     split,
+    rotatePage,
+    downloadPage,
     resetAll,
     selectedCount,
   } = usePdfSplit()
@@ -97,7 +99,12 @@ export function SplitView() {
       />
 
       {/* Page grid */}
-      <PageGrid pages={sourceFile.pages} onTogglePage={togglePage} />
+      <PageGrid
+        pages={sourceFile.pages}
+        onTogglePage={togglePage}
+        onRotatePage={rotatePage}
+        onDownloadPage={downloadPage}
+      />
 
       {/* Output filename */}
       <OutputFileName value={outputName} onChange={setOutputName} />

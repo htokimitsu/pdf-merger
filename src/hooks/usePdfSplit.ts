@@ -1,6 +1,6 @@
 import { useCallback, useMemo, useState } from 'react'
 import type { SplitSourceFile, SplitState, PageEntry } from '../types/pdf'
-import { initialSplitState } from '../types/pdf'
+import { initialSplitState, nextRotation } from '../types/pdf'
 import { splitPdf } from '../lib/pdf-split'
 import { generatePageThumbnails, revokePageThumbnails } from '../lib/pdf-page-thumbnails'
 import { getPdfPageCount } from '../lib/pdf-merge'
@@ -15,6 +15,8 @@ interface UsePdfSplitReturn {
   readonly deselectAll: () => void
   readonly setSelectedPages: (indices: ReadonlyArray<number>) => void
   readonly split: (outputName: string) => Promise<void>
+  readonly rotatePage: (pageIndex: number) => void
+  readonly downloadPage: (pageIndex: number) => Promise<void>
   readonly resetAll: () => void
   readonly selectedCount: number
 }
@@ -47,6 +49,7 @@ export function usePdfSplit(): UsePdfSplitReturn {
         pageIndex: i,
         thumbnailUrl: url,
         selected: true,
+        rotation: 0,
       }))
 
       setSourceFile({
@@ -117,9 +120,9 @@ export function usePdfSplit(): UsePdfSplitReturn {
     async (outputName: string) => {
       if (!sourceFile) return
 
-      const selectedIndices = sourceFile.pages
-        .filter((p) => p.selected)
-        .map((p) => p.pageIndex)
+      const selectedPages = sourceFile.pages.filter((p) => p.selected)
+      const selectedIndices = selectedPages.map((p) => p.pageIndex)
+      const selectedRotations = selectedPages.map((p) => p.rotation)
 
       if (selectedIndices.length === 0) return
 
@@ -127,7 +130,7 @@ export function usePdfSplit(): UsePdfSplitReturn {
 
       try {
         const arrayBuffer = await sourceFile.file.arrayBuffer()
-        const result = await splitPdf(arrayBuffer, selectedIndices, (progress) => {
+        const result = await splitPdf(arrayBuffer, selectedIndices, selectedRotations, (progress) => {
           setSplitState((prev) => ({ ...prev, progress }))
         })
 
@@ -140,6 +143,48 @@ export function usePdfSplit(): UsePdfSplitReturn {
           error instanceof Error
             ? error.message
             : 'PDF分割中にエラーが発生しました'
+        setSplitState({ status: 'error', progress: 0, errorMessage: message })
+      }
+    },
+    [sourceFile],
+  )
+
+  const rotatePage = useCallback((pageIndex: number) => {
+    setSourceFile((prev) => {
+      if (!prev) return prev
+      return {
+        ...prev,
+        pages: prev.pages.map((p) =>
+          p.pageIndex === pageIndex
+            ? { ...p, rotation: nextRotation(p.rotation) }
+            : p,
+        ),
+      }
+    })
+  }, [])
+
+  const downloadPage = useCallback(
+    async (pageIndex: number) => {
+      if (!sourceFile) return
+
+      const page = sourceFile.pages.find((p) => p.pageIndex === pageIndex)
+      if (!page) return
+
+      try {
+        const arrayBuffer = await sourceFile.file.arrayBuffer()
+        const result = await splitPdf(
+          arrayBuffer,
+          [pageIndex],
+          [page.rotation],
+        )
+
+        const baseName = sourceFile.name.replace(/\.pdf$/i, '')
+        downloadBlob(result, `${baseName}_page${pageIndex + 1}`)
+      } catch (error) {
+        const message =
+          error instanceof Error
+            ? error.message
+            : 'ページのダウンロード中にエラーが発生しました'
         setSplitState({ status: 'error', progress: 0, errorMessage: message })
       }
     },
@@ -170,6 +215,8 @@ export function usePdfSplit(): UsePdfSplitReturn {
     deselectAll,
     setSelectedPages,
     split,
+    rotatePage,
+    downloadPage,
     resetAll,
     selectedCount,
   }

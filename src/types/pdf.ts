@@ -45,6 +45,7 @@ export interface PageEntry {
   readonly pageIndex: number
   readonly thumbnailUrl: string | null
   readonly selected: boolean
+  readonly rotation: RotationDegrees
 }
 
 export interface SplitSourceFile {

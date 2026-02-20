@@ -59,11 +59,32 @@ describe('splitPdf', () => {
     const buffer = await createTestPdfBuffer(4)
     const onProgress = vi.fn()
 
-    await splitPdf(buffer, [0, 1, 2], onProgress)
+    await splitPdf(buffer, [0, 1, 2], undefined, onProgress)
 
     expect(onProgress).toHaveBeenCalledTimes(3)
     expect(onProgress).toHaveBeenNthCalledWith(1, 33)
     expect(onProgress).toHaveBeenNthCalledWith(2, 67)
     expect(onProgress).toHaveBeenNthCalledWith(3, 100)
+  })
+
+  it('回転を適用してページを抽出する', async () => {
+    const buffer = await createTestPdfBuffer(3)
+
+    const result = await splitPdf(buffer, [0, 1], [90, 180])
+    const doc = await PDFDocument.load(result)
+
+    expect(doc.getPageCount()).toBe(2)
+    expect(doc.getPage(0).getRotation().angle).toBe(90)
+    expect(doc.getPage(1).getRotation().angle).toBe(180)
+  })
+
+  it('rotationsが未指定の場合は回転を適用しない', async () => {
+    const buffer = await createTestPdfBuffer(2)
+
+    const result = await splitPdf(buffer, [0, 1])
+    const doc = await PDFDocument.load(result)
+
+    expect(doc.getPage(0).getRotation().angle).toBe(0)
+    expect(doc.getPage(1).getRotation().angle).toBe(0)
   })
 })
